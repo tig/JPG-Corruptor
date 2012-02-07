@@ -8,11 +8,10 @@ A digital art expiriment.
 
 JPG Corruptor was the inspiration of my brother-in-law who is an art student. 
 
-The idea is to inject the text of a book into a JPG file corrupting. It turns out that most
-JPG files are quite reslient to such corruption and the resulting images can be quite interesting. 
+The idea is to create a "movie" of a JPG file being corrupted through the injection of words from the text of a book. It turns out that most JPG files are quite reslient to such corruption and the resulting images, when rendered, can be quite interesting. This application takes a text file and JPG file and displays each iteration of the JPG file as it is corrupted by the words in the text file.
 
 ![Example output](http://farm8.staticflickr.com/7149/6834346187_446618ec76.jpg "Example JPG Corruptor Output; First two chapters of The Great Gatsby")  
-Example JPG Corruptor Output; First two chapters of The Great Gatsby
+Example JPG Corruptor Output; What [this image](http://www.filmcritic.com/assets_c/2010/02/The-Great-Gatsby-thumb-560xauto-25948.gif) looks like after being corrupted by the first two chapters of The Great Gatsby
 
 ## Download
 [JPG Corruptor app for Windows] (https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip)
