@@ -26,7 +26,7 @@ Example JPG Corruptor Output; First two chapters of The Great Gatsby
 * You can always find the last image generated in the executables directory named "Corrupt 0000.jpg".
 
 ## Notes
-* Some JPG files get massively corrupted really quickly. It appears that those saved by Photoshop are more resilient than others.
+* Some JPG files get massively corrupted really quickly. *It appears that those saved by Photoshop are more resilient than others*.
 * Some JPG renderers display the corrupt JPGs differently. FireFox, IE, and Chrome all have subtle differences. Windows picture preview is *very* different. 
 * Flickr refuses to upload some of these images.
 * Photoshop tends to not want to open these files
