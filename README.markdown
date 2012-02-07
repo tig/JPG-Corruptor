@@ -11,10 +11,10 @@ JPG Corruptor was the inspiration of my brother-in-law who is an art student.
 The idea is to inject the text of a book into a JPG file corrupting. It turns out that most
 JPG files are quite reslient to such corruption and the resulting images can be quite interesting. 
 
-!Example output http://farm8.staticflickr.com/7149/6834346187_446618ec76.jpg "Example JPG Corruptor Output; First two chapters of The Great Gatsby"
+![Example output](http://farm8.staticflickr.com/7149/6834346187_446618ec76.jpg "Example JPG Corruptor Output; First two chapters of The Great Gatsby")
 
 ## Download
-!ZIP file containing app https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip JPG Corruptor app for Windows
+[JPG Corruptor app for Windows] (https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip)
 ## Instructions
 * Run this little Windows app.
 * Choose a text file (e.g. the first chapter of The Great Gatsby)
