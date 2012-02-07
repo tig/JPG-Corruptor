@@ -1,6 +1,6 @@
 JPG Corruptor
 ====================
-Copyright © 2012 Charlie Kindel.
+Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twitter)
 Licensed under the BSD License.
 
 A digital art expiriment.
@@ -12,6 +12,7 @@ The idea is to inject the text of a book into a JPG file corrupting. It turns ou
 JPG files are quite reslient to such corruption and the resulting images can be quite interesting. 
 
 ![Example output](http://farm8.staticflickr.com/7149/6834346187_446618ec76.jpg "Example JPG Corruptor Output; First two chapters of The Great Gatsby")
+Example JPG Corruptor Output; First two chapters of The Great Gatsby
 
 ## Download
 [JPG Corruptor app for Windows] (https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip)
