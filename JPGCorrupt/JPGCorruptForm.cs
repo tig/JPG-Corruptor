@@ -25,6 +25,7 @@ namespace JPGCorrupt
         private static int _JPGHEADERSIZE = 256;     // Number of bytes to skip at head of file.
         private static int _RANDOMSEED = 42;        // Hard coded so results can be reproduced.
         private static int _SEQUENTIALGAP = 1024*2;
+        private static Color _BACKGROUNDCOLOR = Color.Black;
 
         // ==========================================================
         // Types
@@ -411,6 +412,10 @@ namespace JPGCorrupt
             {
                 // Figure out actual drawing area
                 Rectangle DrawArea = GetDrawRectangle();
+
+                SolidBrush bgBrush = new SolidBrush(_BACKGROUNDCOLOR);
+                e.Graphics.FillRectangle(bgBrush, DrawArea);
+
                 // Scale to fill height
                 Rectangle ImageArea = GetImageRectangle(_offscreenBitmap);
                 // Offset to account for client area
@@ -424,14 +429,14 @@ namespace JPGCorrupt
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                 }
 
-                Font drawFont = new Font("Arial", 16);
-                SolidBrush drawBrush = new SolidBrush(Color.Black);
-                PointF drawPoint = new PointF(10F, 30F);
-                // Center text
-                StringFormat stringFormat = new StringFormat();
-                stringFormat.Alignment = StringAlignment.Center;
-                stringFormat.LineAlignment = StringAlignment.Center;
-                e.Graphics.DrawString(toolStripLabelCurrent.Text, drawFont, drawBrush, DrawArea, stringFormat);
+                //Font drawFont = new Font("Arial", 16);
+                //SolidBrush drawBrush = new SolidBrush(Color.Black);
+                //PointF drawPoint = new PointF(10F, 30F);
+                //// Center text
+                //StringFormat stringFormat = new StringFormat();
+                //stringFormat.Alignment = StringAlignment.Center;
+                //stringFormat.LineAlignment = StringAlignment.Center;
+                //e.Graphics.DrawString(toolStripLabelCurrent.Text, drawFont, drawBrush, DrawArea, stringFormat);
             }
         }
 
@@ -443,7 +448,7 @@ namespace JPGCorrupt
         {
             return new Rectangle(0,
                 toolStrip.Visible ? toolStrip.Height : 0,
-                ClientRectangle.Width - 1,
+                ClientRectangle.Width,
                 ClientRectangle.Height -
                     ((toolStrip.Visible ? toolStrip.Height : 0) + (statusStrip.Visible ? statusStrip.Height : 0)));
         }
