@@ -32,8 +32,8 @@
             this.openFile = new System.Windows.Forms.OpenFileDialog();
             this.FileCorruptBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripLabelImage = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripLabelText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripLabelImage = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.toolStripLabelCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
@@ -44,6 +44,9 @@
             this.toolStripButtonChooseText = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonChooseImage = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonAbout = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripButtonSave = new System.Windows.Forms.ToolStripButton();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
@@ -64,8 +67,8 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripLabelImage,
             this.toolStripLabelText,
+            this.toolStripLabelImage,
             this.toolStripProgressBar,
             this.toolStripLabelCurrent});
             this.statusStrip.Location = new System.Drawing.Point(0, 463);
@@ -73,17 +76,6 @@
             this.statusStrip.Size = new System.Drawing.Size(820, 24);
             this.statusStrip.TabIndex = 2;
             this.statusStrip.Text = "statusStrip";
-            // 
-            // toolStripLabelImage
-            // 
-            this.toolStripLabelImage.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.toolStripLabelImage.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
-            this.toolStripLabelImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.toolStripLabelImage.Name = "toolStripLabelImage";
-            this.toolStripLabelImage.Size = new System.Drawing.Size(44, 19);
-            this.toolStripLabelImage.Text = "image";
             // 
             // toolStripLabelText
             // 
@@ -95,6 +87,17 @@
             this.toolStripLabelText.Name = "toolStripLabelText";
             this.toolStripLabelText.Size = new System.Drawing.Size(30, 19);
             this.toolStripLabelText.Text = "text";
+            // 
+            // toolStripLabelImage
+            // 
+            this.toolStripLabelImage.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.toolStripLabelImage.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
+            this.toolStripLabelImage.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripLabelImage.Name = "toolStripLabelImage";
+            this.toolStripLabelImage.Size = new System.Drawing.Size(44, 19);
+            this.toolStripLabelImage.Text = "image";
             // 
             // toolStripProgressBar
             // 
@@ -124,6 +127,8 @@
             this.toolStripSeparator1,
             this.toolStripButtonChooseText,
             this.toolStripButtonChooseImage,
+            this.toolStripSeparator2,
+            this.toolStripButtonSave,
             this.toolStripButtonAbout});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
@@ -198,6 +203,24 @@
             this.toolStripButtonAbout.Text = "About JPG Corruptor";
             this.toolStripButtonAbout.Click += new System.EventHandler(this.toolStripButtonAbout_Click);
             // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripButtonSave
+            // 
+            this.toolStripButtonSave.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonSave.Image")));
+            this.toolStripButtonSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonSave.Name = "toolStripButtonSave";
+            this.toolStripButtonSave.Size = new System.Drawing.Size(103, 22);
+            this.toolStripButtonSave.Text = "&Save Current...";
+            this.toolStripButtonSave.Click += new System.EventHandler(this.toolStripButtonSave_Click);
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.Title = "Save Image";
+            // 
             // JPGCorruptForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -209,6 +232,7 @@
             this.Name = "JPGCorruptForm";
             this.Text = "JPG Corruptor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.JPGCorruptForm_FormClosing);
+            this.SizeChanged += new System.EventHandler(this.JPGCorruptForm_SizeChanged);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.JPGCorruptForm_Paint);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.JPGCorruptForm_KeyUp);
             this.statusStrip.ResumeLayout(false);
@@ -237,6 +261,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolStripButtonChooseImage;
         private System.Windows.Forms.ToolStripButton toolStripButtonAbout;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripButton toolStripButtonSave;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
 
