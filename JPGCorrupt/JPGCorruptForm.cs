@@ -116,6 +116,18 @@ namespace JPGCorrupt
             }
         }
 
+        private bool Loop 
+        { 
+            get
+            {
+                return this.toolStripButtonLoop.Checked;
+            }
+            set
+            {
+                this.toolStripButtonLoop.Checked = value;
+            }
+        }
+
         // ==========================================================
         // Image Corruption Code
         // ==========================================================
@@ -397,7 +409,15 @@ namespace JPGCorrupt
 
         private void FileCorruptBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.Cancelled)
+            if (!e.Cancelled)
+            {
+                if (this.toolStripButtonLoop.Checked)
+                {
+                    this.toolStripButtonGo_Click(sender, null);
+                    return;
+                }
+            }
+            else
                 FullScreen = false;
 
             Running = false;
@@ -476,19 +496,24 @@ namespace JPGCorrupt
         // ==========================================================
         private void toolStripButtonGo_Click(object sender, EventArgs e)
         {
-            if (!Running)
+            if (!String.IsNullOrEmpty(_selectedImage) && (_wordList != null))
             {
-                if (!String.IsNullOrEmpty(_selectedImage) && (_wordList != null))
+                try
                 {
-                    try
-                    {
-                        Running = true;
-                        FileCorruptBackgroundWorker.RunWorkerAsync();
-                    }
-                    catch (FileNotFoundException ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
+                    Running = true;
+
+                    _bytesMutex.WaitOne();
+                    _bytes = GetFileBytes(_selectedImage);
+                    _bytesMutex.ReleaseMutex();
+
+                    _offscreenBitmap = PaintBitmap(_bytes);
+                    this.Invalidate();
+
+                    FileCorruptBackgroundWorker.RunWorkerAsync();
+                }
+                catch (FileNotFoundException ex)
+                {
+                    MessageBox.Show(ex.Message);
                 }
             }
         }
@@ -633,6 +658,11 @@ namespace JPGCorrupt
                 _offscreenBitmap = PaintBitmap(_bytes);
 
             Invalidate();
+        }
+
+        private void toolStripButtonLoop_Click(object sender, EventArgs e)
+        {
+            this.toolStripButtonLoop.Checked = !this.toolStripButtonLoop.Checked;
         }
 
     } // class

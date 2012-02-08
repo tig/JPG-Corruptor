@@ -43,10 +43,11 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonChooseText = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonChooseImage = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButtonAbout = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonSave = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonAbout = new System.Windows.Forms.ToolStripButton();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.toolStripButtonLoop = new System.Windows.Forms.ToolStripButton();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
@@ -124,6 +125,7 @@
             this.toolStripButtonGo,
             this.toolStripButtonGoFullscreen,
             this.toolStripButtonStop,
+            this.toolStripButtonLoop,
             this.toolStripSeparator1,
             this.toolStripButtonChooseText,
             this.toolStripButtonChooseImage,
@@ -194,15 +196,6 @@
             this.toolStripButtonChooseImage.ToolTipText = "Choose image that will be corrupted";
             this.toolStripButtonChooseImage.Click += new System.EventHandler(this.toolStripButtonChooseImage_Click);
             // 
-            // toolStripButtonAbout
-            // 
-            this.toolStripButtonAbout.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAbout.Image")));
-            this.toolStripButtonAbout.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonAbout.Name = "toolStripButtonAbout";
-            this.toolStripButtonAbout.Size = new System.Drawing.Size(137, 22);
-            this.toolStripButtonAbout.Text = "About JPG Corruptor";
-            this.toolStripButtonAbout.Click += new System.EventHandler(this.toolStripButtonAbout_Click);
-            // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
@@ -217,9 +210,28 @@
             this.toolStripButtonSave.Text = "&Save Current...";
             this.toolStripButtonSave.Click += new System.EventHandler(this.toolStripButtonSave_Click);
             // 
+            // toolStripButtonAbout
+            // 
+            this.toolStripButtonAbout.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonAbout.Image")));
+            this.toolStripButtonAbout.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonAbout.Name = "toolStripButtonAbout";
+            this.toolStripButtonAbout.Size = new System.Drawing.Size(137, 22);
+            this.toolStripButtonAbout.Text = "About JPG Corruptor";
+            this.toolStripButtonAbout.Click += new System.EventHandler(this.toolStripButtonAbout_Click);
+            // 
             // saveFileDialog
             // 
             this.saveFileDialog.Title = "Save Image";
+            // 
+            // toolStripButtonLoop
+            // 
+            this.toolStripButtonLoop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonLoop.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonLoop.Image")));
+            this.toolStripButtonLoop.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonLoop.Name = "toolStripButtonLoop";
+            this.toolStripButtonLoop.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonLoop.Text = "Loop Mode";
+            this.toolStripButtonLoop.Click += new System.EventHandler(this.toolStripButtonLoop_Click);
             // 
             // JPGCorruptForm
             // 
@@ -264,6 +276,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton toolStripButtonSave;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.ToolStripButton toolStripButtonLoop;
     }
 }
 
