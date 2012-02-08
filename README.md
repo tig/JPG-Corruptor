@@ -16,6 +16,7 @@ The JPG file is "corrupted" by randomly overwriting data in the file with the wo
 ![Example output](http://farm8.staticflickr.com/7149/6834346187_446618ec76.jpg "Example JPG Corruptor Output; First two chapters of The Great Gatsby")  
 Example JPG Corruptor Output; What [this image](http://www.filmcritic.com/assets_c/2010/02/The-Great-Gatsby-thumb-560xauto-25948.gif) looks like after being corrupted by the first two chapters of The Great Gatsby
 
+Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 
 ## Download
 [JPG Corruptor app for Windows] (https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip)
