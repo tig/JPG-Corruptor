@@ -116,6 +116,9 @@ namespace JPGCorrupt
             }
         }
 
+        /// <summary>
+        /// Loop mode
+        /// </summary>
         private bool Loop 
         { 
             get
@@ -126,6 +129,50 @@ namespace JPGCorrupt
             {
                 this.toolStripButtonLoop.Checked = value;
             }
+        }
+
+        /// <summary>
+        /// Set when the stop button is pushed, ESC is pressed, or the app is closing.
+        /// Reset when the background worker completes.
+        /// </summary>
+        public bool StopPushed { get; set; }
+
+        /// <summary>
+        /// Starts a corruption session
+        /// </summary>
+        private void Go()
+        {
+            if (!Running && 
+                !String.IsNullOrEmpty(_selectedImage) && 
+                _wordList != null)
+            {
+                try
+                {
+                    Running = true;
+
+                    _bytesMutex.WaitOne();
+                    _bytes = GetFileBytes(_selectedImage);
+                    _bytesMutex.ReleaseMutex();
+
+                    _offscreenBitmap = PaintBitmap(_bytes);
+                    this.Invalidate();
+
+                    FileCorruptBackgroundWorker.RunWorkerAsync();
+                }
+                catch (FileNotFoundException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Stop a corruption session
+        /// </summary>
+        private void Stop()
+        {
+            StopPushed = true;
+            FileCorruptBackgroundWorker.CancelAsync();
         }
 
         // ==========================================================
@@ -406,21 +453,26 @@ namespace JPGCorrupt
             this.Invalidate();
         }
 
-
+        /// <summary>
+        /// Called by the background worker upon completion or cancellation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FileCorruptBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!e.Cancelled)
+            Running = false;
+
+            // if it wasn't cancelled and Loop mode is enabled then go again
+            if (!StopPushed && this.toolStripButtonLoop.Checked)
             {
-                if (this.toolStripButtonLoop.Checked)
-                {
-                    this.toolStripButtonGo_Click(sender, null);
-                    return;
-                }
+                Go();
             }
             else
+            {
+                // Always come out of full sceen mode if cancelled
                 FullScreen = false;
-
-            Running = false;
+                StopPushed = false;
+            }
         }
 
         // ==========================================================
@@ -496,40 +548,19 @@ namespace JPGCorrupt
         // ==========================================================
         private void toolStripButtonGo_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrEmpty(_selectedImage) && (_wordList != null))
-            {
-                try
-                {
-                    Running = true;
-
-                    _bytesMutex.WaitOne();
-                    _bytes = GetFileBytes(_selectedImage);
-                    _bytesMutex.ReleaseMutex();
-
-                    _offscreenBitmap = PaintBitmap(_bytes);
-                    this.Invalidate();
-
-                    FileCorruptBackgroundWorker.RunWorkerAsync();
-                }
-                catch (FileNotFoundException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
+            Go();
         }
 
         private void toolStripButtonGoFullscreen_Click(object sender, EventArgs e)
         {
             FullScreen = true;
-            toolStripButtonGo_Click(sender, e);
+            Go();
         }
 
         private void toolStripButtonStop_Click(object sender, EventArgs e)
         {
             if (Running)
-            {
-                FileCorruptBackgroundWorker.CancelAsync();
-            }
+                Stop();
         }
 
         private void toolStripButtonChooseText_Click(object sender, EventArgs e)
@@ -544,7 +575,7 @@ namespace JPGCorrupt
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                FileCorruptBackgroundWorker.CancelAsync();
+                Stop();
 
                 try
                 {
@@ -574,7 +605,7 @@ namespace JPGCorrupt
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 // Cancel the background worker
-                FileCorruptBackgroundWorker.CancelAsync();
+                Stop();
 
                 try
                 {
@@ -633,7 +664,7 @@ namespace JPGCorrupt
 
         private void JPGCorruptForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            FileCorruptBackgroundWorker.CancelAsync();
+            Stop();
         }
 
         private void JPGCorruptForm_KeyUp(object sender, KeyEventArgs e)
@@ -641,15 +672,10 @@ namespace JPGCorrupt
             if (e.KeyData == Keys.Escape)
             {
                 if (Running)
-                    FileCorruptBackgroundWorker.CancelAsync();
+                    Stop();
                 else
                     FullScreen = false;
             }
-        }
-
-        private void toolStripButtonAbout_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Copyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
         }
 
         private void JPGCorruptForm_SizeChanged(object sender, EventArgs e)
@@ -663,6 +689,11 @@ namespace JPGCorrupt
         private void toolStripButtonLoop_Click(object sender, EventArgs e)
         {
             this.toolStripButtonLoop.Checked = !this.toolStripButtonLoop.Checked;
+        }
+
+        private void toolStripButtonAbout_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Copyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
         }
 
     } // class

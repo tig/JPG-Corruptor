@@ -40,6 +40,7 @@
             this.toolStripButtonGo = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonGoFullscreen = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonStop = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonLoop = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonChooseText = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonChooseImage = new System.Windows.Forms.ToolStripButton();
@@ -47,7 +48,7 @@
             this.toolStripButtonSave = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonAbout = new System.Windows.Forms.ToolStripButton();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.toolStripButtonLoop = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
@@ -131,6 +132,7 @@
             this.toolStripButtonChooseImage,
             this.toolStripSeparator2,
             this.toolStripButtonSave,
+            this.toolStripSeparator3,
             this.toolStripButtonAbout});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
@@ -170,6 +172,16 @@
             this.toolStripButtonStop.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonStop.Text = "Stop";
             this.toolStripButtonStop.Click += new System.EventHandler(this.toolStripButtonStop_Click);
+            // 
+            // toolStripButtonLoop
+            // 
+            this.toolStripButtonLoop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonLoop.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonLoop.Image")));
+            this.toolStripButtonLoop.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonLoop.Name = "toolStripButtonLoop";
+            this.toolStripButtonLoop.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonLoop.Text = "Loop Mode";
+            this.toolStripButtonLoop.Click += new System.EventHandler(this.toolStripButtonLoop_Click);
             // 
             // toolStripSeparator1
             // 
@@ -223,15 +235,10 @@
             // 
             this.saveFileDialog.Title = "Save Image";
             // 
-            // toolStripButtonLoop
+            // toolStripSeparator3
             // 
-            this.toolStripButtonLoop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonLoop.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonLoop.Image")));
-            this.toolStripButtonLoop.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonLoop.Name = "toolStripButtonLoop";
-            this.toolStripButtonLoop.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButtonLoop.Text = "Loop Mode";
-            this.toolStripButtonLoop.Click += new System.EventHandler(this.toolStripButtonLoop_Click);
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
             // 
             // JPGCorruptForm
             // 
@@ -277,6 +284,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButtonSave;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.ToolStripButton toolStripButtonLoop;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }
 
