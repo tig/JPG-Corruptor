@@ -3,7 +3,7 @@ JPG Corruptor
 Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twitter)
 Licensed under the BSD License.
 
-Version 1.1
+Version 1.2
 
 A digital art expiriment.
 ---------------------
@@ -32,6 +32,9 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 * When in full screen mode, ESC will stop it
 * The "Save Current" button will let you save the very latest frame.
 * Loop mode will cause the corruption process to repeat over and over.
+* The JPGCorrupt.settings file will be created the first time the app runs. It is an XML file whos schema is pretty
+self-explainatory. AutoStart, FullScreen, & Loop control the app's behavior.  See Queing Multiple Files below for more details
+on enabling a queue of text/image files to be processed.
 
 ## Notes
 * Some JPG files get massively corrupted really quickly. *It appears that those saved by Photoshop are more resilient than others*.
@@ -47,8 +50,28 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 ## Version History
 * 1.0 - First release for Tom
 * 1.1 - Addressed feedback from Tom: Background is now black, Loop mode, removed text display.
+* 1.2 - More feedback from Tom: Now supports queuing of multiple files, auto start, and persistent configuration.
 
 ## Future work
 * I currently avoid overwitting JPG data in the first 256 bytes of the file. I intentionally didn't read any JPG specs but I assumed there's some form of header. I tried 64 bytes and got unreadable files quickly.
 * The text is randomly spread around the file.  I tried implementing a mode where it over writes JPG data sequentially but it regularly completely corrupted the file.
 * Originally I implemented this such that it saved every JPG along the way. It now works completely in memory, but I added the ability to save an image at any point.
+
+## Queing Multiple Files
+JPGCorrupt supports running through a list of text/image file pairs sequentially. The list of files to be process are listed, in the
+order they will be processed in the JPGCorrupt.settings file. For example:
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <Files>
+        <TextImagePair TextFile="C:\Users\charlie\code\JPG-Corruptor\Short Test.txt" 
+                       ImageFile="C:\Users\charlie\code\JPG-Corruptor\testimage.jpg" />
+        <TextImagePair TextFile="C:\Users\charlie\code\JPG-Corruptor\Long Test.txt" 
+                       ImageFile="C:\Users\charlie\code\JPG-Corruptor\The-Great-Gatsby-upres.jpg" />
+      </Files>
+      <AutoStart>true</AutoStart>
+      <FullScreen>true</FullScreen>
+      <Loop>true</Loop>
+    </Settings>
+
+The above JPGCorrupt.settings file will cause JPGCorrupt to start full screen, processing Short Test.txt with testimage.jpg and Long Text.txt with The-Great-Gatsby-upres.jpg, in order. It will then continue to loop until the ESC key is pressed.

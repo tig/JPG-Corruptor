@@ -44,21 +44,37 @@ namespace JPGCorrupt
         private CorruptionMode _corruptionMode = CorruptionMode.Random;
         private Random _randomNum = new Random(_RANDOMSEED);
         private int _location = 0;
-        private String _selectedImage;
         private List<String> _wordList;
         private Image _offscreenBitmap = null;
         private static Mutex _bytesMutex = new Mutex();
         private byte[] _bytes = null;
 
+        private Settings _settings = null;
+
         public JPGCorruptForm()
         {
             InitializeComponent();
-
-            toolStripLabelText.Text = "";
-            _selectedImage = toolStripLabelImage.Text = "";
-
             this.DoubleBuffered = true;
             this.Invalidate();
+
+            _settings = Settings.DeserializeFromXML();
+            Loop = _settings.Loop;
+
+            try
+            {
+                CurrentTextFile = _settings.TextFile;
+                CurrentImageFile = _settings.ImageFile;
+            }
+            catch (FileNotFoundException)
+            {
+
+            }
+
+            if (_settings.AutoStart)
+            {
+                FullScreen = _settings.FullScreen;
+                Go();
+            }
         }
 
         private bool _running = false;
@@ -131,7 +147,40 @@ namespace JPGCorrupt
             }
         }
 
-        /// <summary>
+        private String _currentTextFile;
+        public String CurrentTextFile
+        {
+            get { return _currentTextFile; }
+            set 
+            { 
+                _currentTextFile = value;
+                _wordList = GetWords(_currentTextFile);
+                toolStripLabelText.Text = "Text: " + _currentTextFile;
+            }
+        }
+
+        private String _currentImageFile;
+        public String CurrentImageFile
+        {
+            get { return _currentImageFile; }
+            set 
+            { 
+                _currentImageFile = value;
+
+                _bytesMutex.WaitOne();
+                _bytes = GetFileBytes(_currentImageFile);
+                _bytesMutex.ReleaseMutex();
+
+                _offscreenBitmap = PaintBitmap(_bytes);
+
+                toolStripLabelImage.Text = "Image: " + _currentImageFile;
+                this.Invalidate();
+            }
+        }
+
+        Queue<TextImagePair> _queue;
+
+     /// <summary>
         /// Set when the stop button is pushed, ESC is pressed, or the app is closing.
         /// Reset when the background worker completes.
         /// </summary>
@@ -142,20 +191,22 @@ namespace JPGCorrupt
         /// </summary>
         private void Go()
         {
-            if (!Running && 
-                !String.IsNullOrEmpty(_selectedImage) && 
-                _wordList != null)
+            if (!Running)
             {
+                if (_queue == null || _queue.Count == 0)
+                {
+                    _queue = new Queue<TextImagePair>();
+                    foreach (TextImagePair p in _settings.list)
+                        _queue.Enqueue(p);
+                }
+
+                TextImagePair pair = _queue.Dequeue();
                 try
                 {
                     Running = true;
 
-                    _bytesMutex.WaitOne();
-                    _bytes = GetFileBytes(_selectedImage);
-                    _bytesMutex.ReleaseMutex();
-
-                    _offscreenBitmap = PaintBitmap(_bytes);
-                    this.Invalidate();
+                    CurrentTextFile = pair.TextFile;
+                    CurrentImageFile = pair.ImageFile;
 
                     FileCorruptBackgroundWorker.RunWorkerAsync();
                 }
@@ -185,6 +236,9 @@ namespace JPGCorrupt
         /// <returns></returns>
         private byte[] GetFileBytes(String fileName)
         {
+            if (String.IsNullOrEmpty(fileName))
+                return null;
+
             FileInfo file = new FileInfo(fileName);
             using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read))
             {
@@ -333,6 +387,9 @@ namespace JPGCorrupt
         /// <param name="file"></param>
         private List<String> GetWords(String file)
         {
+            if (String.IsNullOrEmpty(file))
+                return null;
+
             List<String> list = null;
             FileInfo txtFile = new FileInfo(file);
             
@@ -367,9 +424,9 @@ namespace JPGCorrupt
         /// <param name="e"></param>
         private void FileCorruptBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            int n = 1;
-
             FileCorruptBackgroundWorkerUserState UserState = new FileCorruptBackgroundWorkerUserState();
+
+            int n = 1;
             foreach (string word in _wordList)
             {
                 if (FileCorruptBackgroundWorker.CancellationPending)
@@ -463,7 +520,7 @@ namespace JPGCorrupt
             Running = false;
 
             // if it wasn't cancelled and Loop mode is enabled then go again
-            if (!StopPushed && this.toolStripButtonLoop.Checked)
+            if (!StopPushed && (this.toolStripButtonLoop.Checked || _queue.Count > 0))
             {
                 Go();
             }
@@ -480,7 +537,7 @@ namespace JPGCorrupt
         // ==========================================================
         private void JPGCorruptForm_Paint(object sender, PaintEventArgs e)
         {
-            if (!String.IsNullOrEmpty(_selectedImage))
+            if (_bytes != null)
             {
                 // Figure out actual drawing area
                 Rectangle DrawArea = GetDrawRectangle();
@@ -581,9 +638,10 @@ namespace JPGCorrupt
                 {
                     if ((myStream = openFileDialog.OpenFile()) != null)
                     {
-                        _wordList = GetWords(openFileDialog.FileName);
-                        toolStripLabelText.Text = "Text: " + openFileDialog.FileName;
+                        _settings.TextFile = openFileDialog.FileName;
+                        CurrentTextFile = _settings.TextFile;
                     }
+
                 }
                 catch (Exception ex)
                 {
@@ -611,18 +669,14 @@ namespace JPGCorrupt
                 {
                     if ((myStream = openFileDialog.OpenFile()) != null)
                     {
+                        String file;
                         using (myStream)
                         {
-                            _selectedImage = openFileDialog.FileName;
+                            file = openFileDialog.FileName;
                         }
-                        _bytesMutex.WaitOne();
-                        _bytes = GetFileBytes(_selectedImage);
-                        _bytesMutex.ReleaseMutex();
 
-                        _offscreenBitmap = PaintBitmap(_bytes);
-                        this.Invalidate();
-
-                        toolStripLabelImage.Text = "Image: " + _selectedImage;
+                        CurrentImageFile = file;
+                        _settings.ImageFile = CurrentImageFile;
                     }
                 }
                 catch (Exception ex)
@@ -665,6 +719,8 @@ namespace JPGCorrupt
         private void JPGCorruptForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Stop();
+
+            Settings.SerializeToXML(_settings);
         }
 
         private void JPGCorruptForm_KeyUp(object sender, KeyEventArgs e)
@@ -689,11 +745,12 @@ namespace JPGCorrupt
         private void toolStripButtonLoop_Click(object sender, EventArgs e)
         {
             this.toolStripButtonLoop.Checked = !this.toolStripButtonLoop.Checked;
+            _settings.Loop = this.toolStripButtonLoop.Checked;
         }
 
         private void toolStripButtonAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Version 1.1\r\nCopyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
+            MessageBox.Show("Version 1.2\r\nCopyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
         }
 
     } // class
