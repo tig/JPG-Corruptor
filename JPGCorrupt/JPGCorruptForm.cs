@@ -1,5 +1,5 @@
 ﻿//===================================================================
-// JPG Corruptor
+// JPG Corruptor http://tig.github.com/JPG-Corruptor
 //
 // Copyright © 2012 Charlie Kindel. 
 // Licensed under the BSD License.
