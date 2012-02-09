@@ -3,6 +3,8 @@ JPG Corruptor
 Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twitter)
 Licensed under the BSD License.
 
+Version 1.1
+
 A digital art expiriment.
 ---------------------
 
@@ -20,6 +22,7 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 
 ## Download
 [JPG Corruptor app for Windows] (https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip)
+
 ## Instructions
 * Run this little Windows app.
 * Choose a text file (e.g. the first chapter of The Great Gatsby)
@@ -28,6 +31,7 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 * Watch it unfold
 * When in full screen mode, ESC will stop it
 * The "Save Current" button will let you save the very latest frame.
+* Loop mode will cause the corruption process to repeat over and over.
 
 ## Notes
 * Some JPG files get massively corrupted really quickly. *It appears that those saved by Photoshop are more resilient than others*.
@@ -39,6 +43,10 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 * The larger the JPG image the slower the app is, but the more interesting the results.
 * Each word of the text file overwrites JPG data at a random spot. 
 * I tried inserting the text data (instead of overwriting) but that caused the files to be quickly unreadable.
+
+## Version History
+1.0 - First release for Tom
+1.1 - Addressed feedback from Tom: Background is now black, Loop mode, removed text display.
 
 ## Future work
 * I currently avoid overwitting JPG data in the first 256 bytes of the file. I intentionally didn't read any JPG specs but I assumed there's some form of header. I tried 64 bytes and got unreadable files quickly.
