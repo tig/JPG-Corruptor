@@ -693,7 +693,7 @@ namespace JPGCorrupt
 
         private void toolStripButtonAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Copyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
+            MessageBox.Show("Version 1.1\r\nCopyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
         }
 
     } // class
