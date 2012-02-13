@@ -1,11 +1,12 @@
 JPG Corruptor
 ====================
 Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twitter)
-Licensed under the BSD License.
+
+Licensed under the [MIT License] (http://www.opensource.org/licenses/mit-license.php).
 
 Version 1.2
 
-A digital art expiriment.
+A digital art experiment.
 ---------------------
 
 JPG Corruptor has been inspired and commissioned by my brother-in-law who is an art student. He
