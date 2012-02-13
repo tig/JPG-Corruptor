@@ -1,4 +1,10 @@
-﻿using System.Reflection;
+﻿//===================================================================
+// JPG Corruptor http://tig.github.com/JPG-Corruptor
+//
+// Copyright © 2012 Charlie Kindel. 
+// Licensed under the MIT License.
+// Source code control at http://github.com/tig/JPG-Corruptor
+//===================================================================using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
