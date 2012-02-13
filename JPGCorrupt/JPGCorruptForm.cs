@@ -2,7 +2,7 @@
 // JPG Corruptor http://tig.github.com/JPG-Corruptor
 //
 // Copyright © 2012 Charlie Kindel. 
-// Licensed under the BSD License.
+// Licensed under the MIT License.
 // Source code control at http://github.com/tig/JPG-Corruptor
 //===================================================================
 using System;
@@ -51,23 +51,31 @@ namespace JPGCorrupt
 
         private Settings _settings = null;
 
+        /// <summary>
+        /// Holds a queue of text & image filename pairs. Used by Go() to iterate
+        /// through the files found in the app settings.
+        /// </summary>
+        Queue<TextImagePair> _queue;
+
         public JPGCorruptForm()
         {
             InitializeComponent();
             this.DoubleBuffered = true;
             this.Invalidate();
 
+            // Retrieve settings
             _settings = Settings.DeserializeFromXML();
             Loop = _settings.Loop;
 
             try
             {
+                // These two properties actually try to load the file data
                 CurrentTextFile = _settings.TextFile;
                 CurrentImageFile = _settings.ImageFile;
             }
             catch (FileNotFoundException)
             {
-
+                // Ignore if the files aren't found during app load.
             }
 
             if (_settings.AutoStart)
@@ -178,9 +186,7 @@ namespace JPGCorrupt
             }
         }
 
-        Queue<TextImagePair> _queue;
-
-     /// <summary>
+        /// <summary>
         /// Set when the stop button is pushed, ESC is pressed, or the app is closing.
         /// Reset when the background worker completes.
         /// </summary>
@@ -193,6 +199,8 @@ namespace JPGCorrupt
         {
             if (!Running)
             {
+                // First time through, setup the Queue. Note that there should ALWAYS be
+                // at least one element in _settings.list.
                 if (_queue == null || _queue.Count == 0)
                 {
                     _queue = new Queue<TextImagePair>();
@@ -205,6 +213,7 @@ namespace JPGCorrupt
                 {
                     Running = true;
 
+                    // Read the files
                     CurrentTextFile = pair.TextFile;
                     CurrentImageFile = pair.ImageFile;
 
@@ -395,6 +404,7 @@ namespace JPGCorrupt
             
             using (TextReader rdr = txtFile.OpenText())
             {
+                // TODO: Make this return only words, no punctuation
                 list = new List<string>();
                 String line;
                 while ((line = rdr.ReadLine()) != null)
@@ -519,7 +529,8 @@ namespace JPGCorrupt
         {
             Running = false;
 
-            // if it wasn't cancelled and Loop mode is enabled then go again
+            // if it wasn't cancelled and Loop mode is enabled (or there are items in the queue)
+            // then go again
             if (!StopPushed && (this.toolStripButtonLoop.Checked || _queue.Count > 0))
             {
                 Go();
