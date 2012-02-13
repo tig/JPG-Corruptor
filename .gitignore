@@ -24,6 +24,12 @@ _UpgradeReport_Files/
 ######################
 *.user
 *.suo
+#######################
+# MonoDevelop Stuff
+#######################
+*.userprefs
+*.resources
+*.pidb
 ###############
 # Directories #
 ###############

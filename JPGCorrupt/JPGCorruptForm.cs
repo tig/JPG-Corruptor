@@ -2,7 +2,7 @@
 // JPG Corruptor http://tig.github.com/JPG-Corruptor
 //
 // Copyright © 2012 Charlie Kindel. 
-// Licensed under the BSD License.
+// Licensed under the MIT License.
 // Source code control at http://github.com/tig/JPG-Corruptor
 //===================================================================
 using System;
@@ -51,23 +51,31 @@ namespace JPGCorrupt
 
         private Settings _settings = null;
 
+        /// <summary>
+        /// Holds a queue of text & image filename pairs. Used by Go() to iterate
+        /// through the files found in the app settings.
+        /// </summary>
+        Queue<TextImagePair> _queue;
+
         public JPGCorruptForm()
         {
             InitializeComponent();
             this.DoubleBuffered = true;
             this.Invalidate();
 
+            // Retrieve settings
             _settings = Settings.DeserializeFromXML();
             Loop = _settings.Loop;
 
             try
             {
+                // These two properties actually try to load the file data
                 CurrentTextFile = _settings.TextFile;
                 CurrentImageFile = _settings.ImageFile;
             }
             catch (FileNotFoundException)
             {
-
+                // Ignore if the files aren't found during app load.
             }
 
             if (_settings.AutoStart)
@@ -153,8 +161,9 @@ namespace JPGCorrupt
             get { return _currentTextFile; }
             set 
             { 
+				// GetWords will throw an exception if file not found
+                _wordList = GetWords(value);
                 _currentTextFile = value;
-                _wordList = GetWords(_currentTextFile);
                 toolStripLabelText.Text = "Text: " + _currentTextFile;
             }
         }
@@ -178,9 +187,7 @@ namespace JPGCorrupt
             }
         }
 
-        Queue<TextImagePair> _queue;
-
-     /// <summary>
+        /// <summary>
         /// Set when the stop button is pushed, ESC is pressed, or the app is closing.
         /// Reset when the background worker completes.
         /// </summary>
@@ -193,6 +200,8 @@ namespace JPGCorrupt
         {
             if (!Running)
             {
+                // First time through, setup the Queue. Note that there should ALWAYS be
+                // at least one element in _settings.list.
                 if (_queue == null || _queue.Count == 0)
                 {
                     _queue = new Queue<TextImagePair>();
@@ -205,6 +214,7 @@ namespace JPGCorrupt
                 {
                     Running = true;
 
+                    // Read the files
                     CurrentTextFile = pair.TextFile;
                     CurrentImageFile = pair.ImageFile;
 
@@ -382,7 +392,8 @@ namespace JPGCorrupt
 #endif
 
         /// <summary>
-        /// Given a text file, return a list of words.
+        /// Given a text file, return a list of words. Will throw an exception if 
+        /// file is not found etc...
         /// </summary>
         /// <param name="file"></param>
         private List<String> GetWords(String file)
@@ -395,6 +406,7 @@ namespace JPGCorrupt
             
             using (TextReader rdr = txtFile.OpenText())
             {
+                // TODO: Make this return only words, no punctuation
                 list = new List<string>();
                 String line;
                 while ((line = rdr.ReadLine()) != null)
@@ -469,7 +481,7 @@ namespace JPGCorrupt
                 using (Image newImage = Image.FromStream(new MemoryStream(_bytes)))
                 {
                     // Figure out actual drawing area
-                    Rectangle DrawArea = GetDrawRectangle();
+                    //Rectangle DrawArea = GetDrawRectangle();
 
                     // Scale to fill height
                     Rectangle ImageArea = GetImageRectangle(newImage);
@@ -519,7 +531,8 @@ namespace JPGCorrupt
         {
             Running = false;
 
-            // if it wasn't cancelled and Loop mode is enabled then go again
+            // if it wasn't cancelled and Loop mode is enabled (or there are items in the queue)
+            // then go again
             if (!StopPushed && (this.toolStripButtonLoop.Checked || _queue.Count > 0))
             {
                 Go();
@@ -622,7 +635,6 @@ namespace JPGCorrupt
 
         private void toolStripButtonChooseText_Click(object sender, EventArgs e)
         {
-            Stream myStream = null;
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             openFileDialog.InitialDirectory = ".";
@@ -636,12 +648,10 @@ namespace JPGCorrupt
 
                 try
                 {
-                    if ((myStream = openFileDialog.OpenFile()) != null)
-                    {
-                        _settings.TextFile = openFileDialog.FileName;
-                        CurrentTextFile = _settings.TextFile;
-                    }
-
+					// CurrentTextFile.Set will attempt to open the file and exception willl be thrown
+					// if not found.
+                    CurrentTextFile = openFileDialog.FileName;
+                    _settings.TextFile = openFileDialog.FileName;
                 }
                 catch (Exception ex)
                 {
@@ -683,13 +693,11 @@ namespace JPGCorrupt
                 {
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
                 }
-            }
+			}
         }
 
         private void toolStripButtonSave_Click(object sender, EventArgs e)
         {
-            SaveFileDialog openFileDialog = new SaveFileDialog();
-
             saveFileDialog.InitialDirectory = ".";
             saveFileDialog.Filter = "jpg files (*.jpg)|*.jpg|All files (*.*)|*.*";
             saveFileDialog.FilterIndex = 1;
