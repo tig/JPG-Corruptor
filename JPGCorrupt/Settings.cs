@@ -31,7 +31,7 @@ namespace JPGCorrupt
         static public void SerializeToXML(Settings settings)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            TextWriter textWriter = new StreamWriter(SettingsFileName);
+            TextWriter textWriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\" + SettingsFileName);
             serializer.Serialize(textWriter, settings);
             textWriter.Close();
         }
@@ -41,7 +41,7 @@ namespace JPGCorrupt
             try
             {
                 XmlSerializer deserializer = new XmlSerializer(typeof(Settings));
-                using (TextReader textReader = new StreamReader(SettingsFileName))
+                using (TextReader textReader = new StreamReader(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\" + SettingsFileName))
                 {
                     Settings settings = (Settings)deserializer.Deserialize(textReader);
                     textReader.Close();
