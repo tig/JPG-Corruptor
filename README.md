@@ -4,7 +4,7 @@ Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twi
 
 Licensed under the [MIT License] (http://www.opensource.org/licenses/mit-license.php).
 
-Version 1.2
+Version 1.3
 
 A digital art experiment.
 ---------------------
@@ -33,7 +33,7 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 * When in full screen mode, ESC will stop it
 * The "Save Current" button will let you save the very latest frame.
 * Loop mode will cause the corruption process to repeat over and over.
-* The JPGCorrupt.settings file will be created the first time the app runs. It is an XML file whos schema is pretty
+* The JPGCorrupt.settings file will be created the first time the app runs. The settings file will be created in the directory the JPGCorrupt.exe file is in. It is an XML file whos schema is pretty
 self-explainatory. AutoStart, FullScreen, & Loop control the app's behavior.  See Queing Multiple Files below for more details
 on enabling a queue of text/image files to be processed.
 
@@ -52,6 +52,7 @@ on enabling a queue of text/image files to be processed.
 * 1.0 - First release for Tom
 * 1.1 - Addressed feedback from Tom: Background is now black, Loop mode, removed text display.
 * 1.2 - More feedback from Tom: Now supports queuing of multiple files, auto start, and persistent configuration.
+* 1.3 - Added tracing (JPGCorrupt.log in executable directory). Moved .settings to executable directory. Fixed bugs.
 
 ## Future work
 * I currently avoid overwitting JPG data in the first 256 bytes of the file. I intentionally didn't read any JPG specs but I assumed there's some form of header. I tried 64 bytes and got unreadable files quickly.
