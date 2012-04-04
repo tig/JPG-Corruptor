@@ -1,7 +1,9 @@
-#JPG Corruptor
-====================
+# JPG Corruptor
+
 Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twitter)
+
 Licensed under the [MIT License] (http://www.opensource.org/licenses/mit-license.php).
+
 Version 1.3
 
 [Home Page] (http://tig.github.com/JPG-Corruptor)
@@ -32,7 +34,7 @@ Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
 * When in full screen mode, ESC will stop it
 * The "Save Current" button will let you save the very latest frame.
 * Loop mode will cause the corruption process to repeat over and over.
-* The JPGCorrupt.settings file will be created the first time the app runs. The settings file will be created in the directory the JPGCorrupt.exe file is in. It is an XML file whos schema is pretty
+* The `JPGCorrupt.settings` file will be created the first time the app runs. The settings file will be created in the directory the `JPGCorrupt.exe` file is in. It is an XML file whos schema is pretty
 self-explainatory. AutoStart, FullScreen, & Loop control the app's behavior.  See Queing Multiple Files below for more details
 on enabling a queue of text/image files to be processed.
 
@@ -60,7 +62,7 @@ on enabling a queue of text/image files to be processed.
 
 ## Queing Multiple Files
 JPGCorrupt supports running through a list of text/image file pairs sequentially. The list of files to be process are listed, in the
-order they will be processed in the JPGCorrupt.settings file. For example:
+order they will be processed in the `JPGCorrupt.settings` file. For example:
 
     <?xml version="1.0" encoding="utf-8"?>
     <Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -75,4 +77,4 @@ order they will be processed in the JPGCorrupt.settings file. For example:
       <Loop>true</Loop>
     </Settings>
 
-The above JPGCorrupt.settings file will cause JPGCorrupt to start full screen, processing Short Test.txt with testimage.jpg and Long Text.txt with The-Great-Gatsby-upres.jpg, in order. It will then continue to loop until the ESC key is pressed.
+The above `JPGCorrupt.settings` file will cause JPGCorrupt to start full screen, processing `Short Test.txt` with `testimage.jpg` and `Long Text.txt` with `The-Great-Gatsby-upres.jpg`, in order. It will then continue to loop until the ESC key is pressed.
