@@ -6,6 +6,7 @@
 // Source code control at http://github.com/tig/JPG-Corruptor
 //===================================================================
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -50,6 +51,7 @@ namespace JPGCorrupt
         private byte[] _bytes = null;
 
         private Settings _settings = null;
+        private String _settingsFileName = null;
 
         /// <summary>
         /// Holds a queue of text & image filename pairs. Used by Go() to iterate
@@ -63,24 +65,42 @@ namespace JPGCorrupt
             this.DoubleBuffered = true;
             this.Invalidate();
 
+            _settingsFileName = Program.ExecutablePath() + "\\" + Program.AppName() + ".settings";
+
+            toolStripLabelCurrent.Text = "";
+
             // Retrieve settings
-            _settings = Settings.DeserializeFromXML();
+            try
+            {
+                _settings = Settings.DeserializeFromXML(_settingsFileName);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("Failure reading settings file: " + ex.ToString(), "ERROR");
+                MessageBox.Show("Failure reading settings file: " + ex.Message);
+            }
+
             Loop = _settings.Loop;
+            Trace.WriteLine(String.Format("Loop = {0}", Loop.ToString()));
 
             try
             {
                 // These two properties actually try to load the file data
+                Trace.WriteLine(String.Format("Trying _settings.TextFile: {0}", _settings.TextFile));
                 CurrentTextFile = _settings.TextFile;
+                Trace.WriteLine(String.Format("Trying _settings.ImageFile: {0}", _settings.ImageFile));
                 CurrentImageFile = _settings.ImageFile;
             }
             catch (FileNotFoundException)
             {
+                Trace.WriteLine("File not found. Ignoring exception");
                 // Ignore if the files aren't found during app load.
             }
 
             if (_settings.AutoStart)
             {
                 FullScreen = _settings.FullScreen;
+                Trace.WriteLine(String.Format("FullScreen = {0}", FullScreen.ToString()));
                 Go();
             }
         }
@@ -99,6 +119,7 @@ namespace JPGCorrupt
             set
             {
                 _running = value;
+                Trace.WriteLine(String.Format("Running = {0}", _running.ToString()));
                 toolStripButtonStop.Enabled = value;
                 toolStripButtonGoFullscreen.Enabled = !value;
                 toolStripButtonGo.Enabled = !value;
@@ -120,11 +141,12 @@ namespace JPGCorrupt
         {
             get
             {
-                return (this.FormBorderStyle == FormBorderStyle.None);
+                return (this.WindowState == FormWindowState.Maximized);
             }
 
             set
             {
+                Trace.WriteLine(String.Format("FullScreen = {0}", value.ToString()));
                 if (value)
                 {
                     this.FormBorderStyle = FormBorderStyle.None;
@@ -134,7 +156,8 @@ namespace JPGCorrupt
                 {
                     //and then to exit:
                     this.FormBorderStyle = FormBorderStyle.Sizable;
-                    this.WindowState = FormWindowState.Normal;
+                    if (this.WindowState == FormWindowState.Maximized)
+                        this.WindowState = FormWindowState.Normal;
                 }
                 toolStrip.Visible = statusStrip.Visible = !value; 
             }
@@ -161,10 +184,11 @@ namespace JPGCorrupt
             get { return _currentTextFile; }
             set 
             { 
-				// GetWords will throw an exception if file not found
+                // GetWords will throw an exception if file not found
+                Trace.WriteLine(String.Format("CurrentTextFile = {0}", value.ToString()));
                 _wordList = GetWords(value);
                 _currentTextFile = value;
-                toolStripLabelText.Text = "Text: " + _currentTextFile;
+                toolStripLabelText.Text = "Text: " + Path.GetFileName(_currentTextFile);
             }
         }
 
@@ -173,7 +197,8 @@ namespace JPGCorrupt
         {
             get { return _currentImageFile; }
             set 
-            { 
+            {
+                Trace.WriteLine(String.Format("CurrentImageFile = {0}", value.ToString()));
                 _currentImageFile = value;
 
                 _bytesMutex.WaitOne();
@@ -182,7 +207,7 @@ namespace JPGCorrupt
 
                 _offscreenBitmap = PaintBitmap(_bytes);
 
-                toolStripLabelImage.Text = "Image: " + _currentImageFile;
+                toolStripLabelImage.Text = "Image: " + Path.GetFileName(_currentImageFile);
                 this.Invalidate();
             }
         }
@@ -200,16 +225,22 @@ namespace JPGCorrupt
         {
             if (!Running)
             {
+                Trace.WriteLine("Go()");
                 // First time through, setup the Queue. Note that there should ALWAYS be
                 // at least one element in _settings.list.
                 if (_queue == null || _queue.Count == 0)
                 {
+                    Trace.WriteLine("Creating _queue");
                     _queue = new Queue<TextImagePair>();
                     foreach (TextImagePair p in _settings.list)
+                    {
+                        Trace.WriteLine(String.Format("  Enqueue {0}, {1}", p.ImageFile, p.TextFile));
                         _queue.Enqueue(p);
+                    }
                 }
 
                 TextImagePair pair = _queue.Dequeue();
+                Trace.WriteLine(String.Format("Dequeued pair: {0}, {1}", pair.ImageFile, pair.TextFile));
                 try
                 {
                     Running = true;
@@ -222,9 +253,13 @@ namespace JPGCorrupt
                 }
                 catch (FileNotFoundException ex)
                 {
+                    Trace.WriteLine(ex.ToString());
                     MessageBox.Show(ex.Message);
                 }
             }
+            else 
+                Trace.WriteLine("Go called while already running. Doing nothing.");
+
         }
 
         /// <summary>
@@ -232,6 +267,7 @@ namespace JPGCorrupt
         /// </summary>
         private void Stop()
         {
+            Trace.WriteLine("Stop()");
             StopPushed = true;
             FileCorruptBackgroundWorker.CancelAsync();
         }
@@ -246,18 +282,36 @@ namespace JPGCorrupt
         /// <returns></returns>
         private byte[] GetFileBytes(String fileName)
         {
+            Trace.WriteLine("GetFileBytes(): " + fileName);
             if (String.IsNullOrEmpty(fileName))
                 return null;
 
             FileInfo file = new FileInfo(fileName);
-            using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read))
+            byte[] bytes = null;
+
+            try
             {
-                int len = (int)stream.Length;
-                byte[] bytes = new byte[len];
-                stream.Read(bytes, 0, len);
-                stream.Close();
-                return bytes;
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read))
+                {
+                    int len = (int)stream.Length;
+                    Trace.WriteLine(String.Format("File opened: {0} bytes length", len));
+                    bytes = new byte[len];
+                    stream.Read(bytes, 0, len);
+                    stream.Close();
+                    Trace.WriteLine("File read");
+                }
             }
+            catch (FileNotFoundException ex)
+            {
+                Trace.WriteLine(String.Format("File not found exception: {0} {1}", file, ex), "ERROR");
+                MessageBox.Show("File not found: " + file);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(String.Format("File exception: {0} {1}", file, ex), "ERROR");
+                MessageBox.Show(ex.Message + file);
+            }
+            return bytes;
         }
 
         /// <summary>
@@ -267,6 +321,7 @@ namespace JPGCorrupt
         /// <param name="corruptText"></param>
         private void CorruptImageBytesRandom(byte[] bytes, String corruptText)
         {
+            //Trace.WriteLine("CorruptImageBytesRandom()");
             byte[] corruptTextBytes = Encoding.ASCII.GetBytes(corruptText);
             int location = 0;
 
@@ -287,6 +342,7 @@ namespace JPGCorrupt
         /// <param name="corruptText"></param>
         private void CorruptImageBytesSequential(byte[] bytes, String corruptText)
         {
+            Trace.WriteLine("CorruptImageBytesSequential()");
             byte[] corruptTextBytes = Encoding.ASCII.GetBytes(corruptText);
 
             if (_location > bytes.Length - corruptTextBytes.Length)
@@ -344,9 +400,9 @@ namespace JPGCorrupt
                 if (FileCorruptBackgroundWorker.CancellationPending)
                     return;
 
-                //System.Diagnostics.Debug.WriteLine("CorruptImageFile: IOException. Sleeping..."); 
+                //System.Diagnostics.Trace.WriteLine("CorruptImageFile: IOException. Sleeping..."); 
                 Thread.Sleep(250);
-                //System.Diagnostics.Debug.WriteLine("CorruptImageFile: IOException. Awake...");
+                //System.Diagnostics.Trace.WriteLine("CorruptImageFile: IOException. Awake...");
                 CorruptImageFile(fileName, corruptText);
             }
         }
@@ -398,25 +454,42 @@ namespace JPGCorrupt
         /// <param name="file"></param>
         private List<String> GetWords(String file)
         {
+            Trace.WriteLine("GetWords(): " + file);
             if (String.IsNullOrEmpty(file))
                 return null;
 
             List<String> list = null;
             FileInfo txtFile = new FileInfo(file);
-            
-            using (TextReader rdr = txtFile.OpenText())
+
+            try
             {
-                // TODO: Make this return only words, no punctuation
-                list = new List<string>();
-                String line;
-                while ((line = rdr.ReadLine()) != null)
+                using (TextReader rdr = txtFile.OpenText())
                 {
-                    foreach (string word in line.Split(' '))
+                    Trace.WriteLine("Reading file...");
+                    // TODO: Make this return only words, no punctuation
+                    list = new List<string>();
+                    String line;
+                    while ((line = rdr.ReadLine()) != null)
                     {
-                        list.Add(word);
+                        foreach (string word in line.Split(' '))
+                        {
+                            list.Add(word);
+                        }
                     }
                 }
+                Trace.WriteLine("File read.");
             }
+            catch (FileNotFoundException ex)
+            {
+                Trace.WriteLine(String.Format("File not found exception: {0} {1}", file, ex), "ERROR");
+                MessageBox.Show("File not found: " + file);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(String.Format("File exception: {0} {1}", file, ex), "ERROR");
+                MessageBox.Show(ex.Message + file);
+            }
+
             return list;
         }
 
@@ -436,14 +509,19 @@ namespace JPGCorrupt
         /// <param name="e"></param>
         private void FileCorruptBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            Trace.WriteLine("FileCorruptBackgroundWorker_DoWork()");
             FileCorruptBackgroundWorkerUserState UserState = new FileCorruptBackgroundWorkerUserState();
 
             int n = 1;
             foreach (string word in _wordList)
             {
                 if (FileCorruptBackgroundWorker.CancellationPending)
+                {
+                    Trace.WriteLine("FileCorruptBackgroundWorker.CancellationPending");
                     return;
+                }
 
+                //Trace.WriteLine("_corruptionMode: " + _corruptionMode.ToString());
                 switch (_corruptionMode)
                 {
                     case CorruptionMode.Random:
@@ -458,9 +536,11 @@ namespace JPGCorrupt
                 }
 
                 // Render to a bitmap for fast blitting
+                //Trace.WriteLine("Render to bitmap...");
                 UserState.Bitmap = PaintBitmap(_bytes);
                 UserState.Word = word;
-                FileCorruptBackgroundWorker.ReportProgress((int)((double)n * 100 / _wordList.Count), UserState);
+                int percent = (int)((double)n * 100 / _wordList.Count);
+                FileCorruptBackgroundWorker.ReportProgress(percent, UserState);
 
                 n++;
             }
@@ -475,34 +555,37 @@ namespace JPGCorrupt
         /// <returns></returns>
         private Image PaintBitmap(byte[] bytes)
         {
+            //Trace.WriteLine("PaintBitmap()");
+            Image bitmapImage = null;
             try
             {
                 _bytesMutex.WaitOne();
-                using (Image newImage = Image.FromStream(new MemoryStream(_bytes)))
+                // If we are minimized or sized too small just ignore
+                Rectangle r = GetDrawRectangle();
+                if (r.Height > 0 && r.Width > 0)
                 {
-                    // Figure out actual drawing area
-                    //Rectangle DrawArea = GetDrawRectangle();
-
-                    // Scale to fill height
-                    Rectangle ImageArea = GetImageRectangle(newImage);
-
-                    Image bitmapImage = new Bitmap(ImageArea.Width, ImageArea.Height);
-                    using (Graphics g = Graphics.FromImage(bitmapImage))
+                    //Trace.WriteLine("calling Image.FromStream");
+                    using (Image newImage = Image.FromStream(new MemoryStream(_bytes)))
                     {
-                        g.DrawImage(newImage, ImageArea);
+                        // Scale to fill height
+                        Rectangle ImageArea = GetImageRectangle(newImage);
+                        bitmapImage = new Bitmap(ImageArea.Width, ImageArea.Height);
+                        using (Graphics g = Graphics.FromImage(bitmapImage))
+                        {
+                            g.DrawImage(newImage, ImageArea);
+                        }
                     }
-                    return bitmapImage;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("paint: exception");
+                System.Diagnostics.Trace.WriteLine("PaintBitmap() exception: " + ex.ToString(), "ERROR");
             }
             finally
             {
                 _bytesMutex.ReleaseMutex();
             }
-            return null;
+            return bitmapImage;
         }
 
         /// <summary>
@@ -512,13 +595,21 @@ namespace JPGCorrupt
         /// <param name="e"></param>
         private void FileCorruptBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
+            //Trace.WriteLine("FileCorruptBackgroundWorker_ProgressChanged()");
             FileCorruptBackgroundWorkerUserState state = e.UserState as FileCorruptBackgroundWorkerUserState;
 
             _offscreenBitmap = state.Bitmap;
+            //Trace.Assert(_offscreenBitmap != null);
             toolStripLabelCurrent.Text = state.Word;
             if (!toolStripProgressBar.IsDisposed)
-                toolStripProgressBar.Value = e.ProgressPercentage;
+            {
+                if (toolStripProgressBar.Value != e.ProgressPercentage)
+                    Trace.WriteLine(e.ProgressPercentage + "% complete");
 
+                toolStripProgressBar.Value = e.ProgressPercentage;
+            }
+
+            //Trace.WriteLine("Calling Invalidate");
             this.Invalidate();
         }
 
@@ -529,16 +620,19 @@ namespace JPGCorrupt
         /// <param name="e"></param>
         private void FileCorruptBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            Trace.WriteLine("FileCorruptBackgroundWorker_RunWorkerCompleted()");
             Running = false;
 
             // if it wasn't cancelled and Loop mode is enabled (or there are items in the queue)
             // then go again
             if (!StopPushed && (this.toolStripButtonLoop.Checked || _queue.Count > 0))
             {
+                Trace.WriteLine("Going again...");
                 Go();
             }
             else
             {
+                Trace.WriteLine("Done.");
                 // Always come out of full sceen mode if cancelled
                 FullScreen = false;
                 StopPushed = false;
@@ -550,7 +644,8 @@ namespace JPGCorrupt
         // ==========================================================
         private void JPGCorruptForm_Paint(object sender, PaintEventArgs e)
         {
-            if (_bytes != null)
+            //Trace.WriteLine("JPGCorruptForm_Paint()");
+            if (_bytes != null && _offscreenBitmap != null)
             {
                 // Figure out actual drawing area
                 Rectangle DrawArea = GetDrawRectangle();
@@ -559,6 +654,7 @@ namespace JPGCorrupt
                 e.Graphics.FillRectangle(bgBrush, DrawArea);
 
                 // Scale to fill height
+                Trace.Assert(_offscreenBitmap != null);
                 Rectangle ImageArea = GetImageRectangle(_offscreenBitmap);
                 // Offset to account for client area
                 ImageArea.Offset(DrawArea.X + ((ClientRectangle.Width - ImageArea.Width) / 2), DrawArea.Y);
@@ -568,7 +664,7 @@ namespace JPGCorrupt
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    Trace.WriteLine(ex.Message);
                 }
 
                 //Font drawFont = new Font("Arial", 16);
@@ -588,11 +684,13 @@ namespace JPGCorrupt
         /// <returns></returns>
         private Rectangle GetDrawRectangle()
         {
-            return new Rectangle(0,
+            //Trace.WriteLine("GetDrawRectangle()");
+            Rectangle r = new Rectangle(0,
                 toolStrip.Visible ? toolStrip.Height : 0,
                 ClientRectangle.Width,
                 ClientRectangle.Height -
                     ((toolStrip.Visible ? toolStrip.Height : 0) + (statusStrip.Visible ? statusStrip.Height : 0)));
+            return r;
         }
 
         /// <summary>
@@ -602,6 +700,7 @@ namespace JPGCorrupt
         /// <returns></returns>
         private Rectangle GetImageRectangle(Image image)
         {
+            //Trace.WriteLine("GetImageRectangle()");
             Rectangle DrawRectangle = GetDrawRectangle();
             if (image.Height > DrawRectangle.Height)
             {
@@ -648,8 +747,8 @@ namespace JPGCorrupt
 
                 try
                 {
-					// CurrentTextFile.Set will attempt to open the file and exception willl be thrown
-					// if not found.
+                    // CurrentTextFile.Set will attempt to open the file and exception willl be thrown
+                    // if not found.
                     CurrentTextFile = openFileDialog.FileName;
                     _settings.TextFile = openFileDialog.FileName;
                 }
@@ -693,7 +792,7 @@ namespace JPGCorrupt
                 {
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
                 }
-			}
+            }
         }
 
         private void toolStripButtonSave_Click(object sender, EventArgs e)
@@ -728,7 +827,7 @@ namespace JPGCorrupt
         {
             Stop();
 
-            Settings.SerializeToXML(_settings);
+            Settings.SerializeToXML(_settingsFileName, _settings);
         }
 
         private void JPGCorruptForm_KeyUp(object sender, KeyEventArgs e)
@@ -744,9 +843,11 @@ namespace JPGCorrupt
 
         private void JPGCorruptForm_SizeChanged(object sender, EventArgs e)
         {
+            Trace.WriteLine("JPGCorruptForm_SizeChanged");
             if (!Running)
                 _offscreenBitmap = PaintBitmap(_bytes);
 
+            Trace.WriteLine("Calling Invalidate");
             Invalidate();
         }
 
@@ -758,7 +859,27 @@ namespace JPGCorrupt
 
         private void toolStripButtonAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Version 1.2\r\nCopyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
+            MessageBox.Show("Version " + Application.ProductVersion + "\r\nCopyright © 2012 Charlie Kindel.\r\nSource on http://github.com/tig/JPG-Corruptor", "JPG Corruptor");
+        }
+
+        private const int WM_SYSCOMMAND = 0x0112;
+        private const int SC_MINIMIZE = 0xF020;
+
+        [System.Security.Permissions.SecurityPermission(System.Security.Permissions.SecurityAction.LinkDemand,
+            Flags = System.Security.Permissions.SecurityPermissionFlag.UnmanagedCode)]
+        protected override void WndProc(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_SYSCOMMAND:
+                    int command = m.WParam.ToInt32() & 0xfff0;
+                    if (command == SC_MINIMIZE)
+                    {
+                        Stop();  
+                    }
+                    break;
+            }
+            base.WndProc(ref m);
         }
 
     } // class

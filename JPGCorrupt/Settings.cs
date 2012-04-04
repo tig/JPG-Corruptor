@@ -6,6 +6,7 @@
 // Source code control at http://github.com/tig/JPG-Corruptor
 //===================================================================
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,24 +25,26 @@ namespace JPGCorrupt
         public String ImageFile { get; set; }
     }
 
-	public class Settings
-	{
+    public class Settings
+    {
         private const string SettingsFileName = "JPGCorrupt.settings";
 
-        static public void SerializeToXML(Settings settings)
+        static public void SerializeToXML(String file, Settings settings)
         {
+            Trace.WriteLine("SerializeToXML()");
             XmlSerializer serializer = new XmlSerializer(typeof(Settings));
-            TextWriter textWriter = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\" + SettingsFileName);
+            TextWriter textWriter = new StreamWriter(file);
             serializer.Serialize(textWriter, settings);
             textWriter.Close();
         }
 
-        static public Settings DeserializeFromXML()
+        static public Settings DeserializeFromXML(String file)
         {
+            Trace.WriteLine("DeserializeFromXML()");
             try
             {
                 XmlSerializer deserializer = new XmlSerializer(typeof(Settings));
-                using (TextReader textReader = new StreamReader(Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "\\" + SettingsFileName))
+                using (TextReader textReader = new StreamReader(file))
                 {
                     Settings settings = (Settings)deserializer.Deserialize(textReader);
                     textReader.Close();
@@ -50,6 +53,7 @@ namespace JPGCorrupt
             }
             catch (FileNotFoundException)
             {
+                Trace.WriteLine("Using default settings.");
                 return new Settings();
             }
         }
@@ -89,5 +93,5 @@ namespace JPGCorrupt
             set { list[0].ImageFile = value; }
         }
 
-	}
+    }
 }

@@ -120,7 +120,7 @@ namespace JPGCorrupt
             this.toolStripLabelCurrent.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.toolStripLabelCurrent.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenOuter;
+            this.toolStripLabelCurrent.BorderStyle = System.Windows.Forms.Border3DStyle.Adjust;
             this.toolStripLabelCurrent.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripLabelCurrent.Name = "toolStripLabelCurrent";
             this.toolStripLabelCurrent.Size = new System.Drawing.Size(49, 19);
