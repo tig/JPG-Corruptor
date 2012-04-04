@@ -1,14 +1,16 @@
-JPG Corruptor
+#JPG Corruptor
 ====================
 Copyright © 2012 Charlie Kindel ([@ckindel] (http://twitter.com/ckindel) on Twitter)
-
 Licensed under the [MIT License] (http://www.opensource.org/licenses/mit-license.php).
-
 Version 1.3
+
+[Home Page] (http://tig.github.com/JPG-Corruptor)
+
+**[Download for Windows] (https://github.com/tig/JPG-Corruptor/downloads)**
 
 A digital art experiment.
 ---------------------
-
+#
 JPG Corruptor has been inspired and commissioned by my brother-in-law who is an art student. He
 is using it for a project in an art class.
 
@@ -20,9 +22,6 @@ The JPG file is "corrupted" by randomly overwriting data in the file with the wo
 Example JPG Corruptor Output; What [this image](http://www.filmcritic.com/assets_c/2010/02/The-Great-Gatsby-thumb-560xauto-25948.gif) looks like after being corrupted by the first two chapters of The Great Gatsby
 
 Watch a video of JPG Corruptor in action: http://youtu.be/iTtsAL7sSyc
-
-## Download
-[JPG Corruptor app for Windows] (https://github.com/downloads/tig/JPG-Corruptor/JPGCorrupt.zip)
 
 ## Instructions
 * Run this little Windows app.
